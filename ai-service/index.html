@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Analytics</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: #0b0e14;
+            color: #94a3b8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .analytics-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+            width: 100%;
+            max-width: 1100px;
+            background-color: #0d1117;
+            padding: 16px;
+            border-radius: 12px;
+        }
+
+        @media (min-width: 768px) {
+            .analytics-container {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .panel {
+            background-color: #161b22;
+            border: 1px solid #21262d;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+        }
+
+        .panel-title {
+            font-size: 1rem;
+            font-weight: 500;
+            color: #e2e8f0;
+            margin-bottom: 24px;
+        }
+
+        .chart-list {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .chart-row {
+            display: flex;
+            align-items: center;
+            font-size: 0.875rem;
+        }
+
+        .row-label {
+            color: #94a3b8;
+            font-weight: 400;
+            text-align: right;
+            padding-right: 12px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .risk-label {
+            width: 80px;
+        }
+
+        .disorder-label {
+            width: 120px;
+        }
+
+        .track {
+            flex: 1;
+            background-color: #21262d;
+            height: 26px;
+            border-radius: 6px;
+            overflow: hidden;
+            margin-right: 12px;
+            display: flex;
+            align-items: center;
+        }
+
+        .bar {
+            height: 100%;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            padding-left: 8px;
+            color: #ffffff;
+            font-weight: 500;
+            font-size: 0.75rem;
+            transition: width 0.4s ease;
+        }
+
+        .row-value {
+            width: 20px;
+            text-align: right;
+            color: #94a3b8;
+            font-weight: 400;
+        }
+
+        /* Bar Color Variations */
+        .bg-green {
+            background-color: #10b981;
+        }
+
+        .bg-amber {
+            background-color: #d97706;
+        }
+
+        .bg-orange {
+            background-color: #ea580c;
+        }
+
+        .bg-red {
+            background-color: #ef4444;
+        }
+
+        .bg-teal {
+            background-color: #0d9488;
+        }
+
+        .bg-purple {
+            background-color: #8b5cf6;
+        }
+
+        .bg-blue {
+            background-color: #3b82f6;
+        }
+
+        .bg-yellow {
+            background-color: #eab308;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="analytics-container">
+        <!-- Risk Distribution Panel -->
+        <div class="panel">
+            <h3 class="panel-title">Risk distribution</h3>
+            <div class="chart-list" id="risk-chart"></div>
+        </div>
+
+        <!-- Disorder Breakdown Panel -->
+        <div class="panel">
+            <h3 class="panel-title">Disorder breakdown</h3>
+            <div class="chart-list" id="disorder-chart"></div>
+        </div>
+    </div>
+
+    <script>
+        const riskData = [
+            { label: 'Low', count: 14, max: 14, class: 'bg-green' },
+            { label: 'Medium', count: 5, max: 14, class: 'bg-amber' },
+            { label: 'High', count: 4, max: 14, class: 'bg-orange' },
+            { label: 'Critical', count: 3, max: 14, class: 'bg-red' }
+        ];
+
+        const disorderData = [
+            { label: 'None', count: 15, max: 15, class: 'bg-teal' },
+            { label: 'Bipolar Disorder', count: 12, max: 15, class: 'bg-orange' },
+            { label: 'Anxiety', count: 10, max: 15, class: 'bg-purple' },
+            { label: 'Depression', count: 8, max: 15, class: 'bg-blue' },
+            { label: 'PTSD', count: 4, max: 15, class: 'bg-red' },
+            { label: 'OCD', count: 2, max: 15, class: 'bg-yellow' }
+        ];
+
+        function renderChart(containerId, data, labelClass) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = data.map(item => {
+                const percentage = (item.count / item.max) * 100;
+                return `
+          <div class="chart-row">
+            <span class="row-label ${labelClass}" title="${item.label}">${item.label}</span>
+            <div class="track">
+              <div class="bar ${item.class}" style="width: ${percentage}%">
+                ${item.count}
+              </div>
+            </div>
+            <span class="row-value">${item.count}</span>
+          </div>
+        `;
+            }).join('');
+        }
+
+        // Initial Render
+        renderChart('risk-chart', riskData, 'risk-label');
+        renderChart('disorder-chart', disorderData, 'disorder-label');
+    </script>
+
+</body>
+
+</html>
