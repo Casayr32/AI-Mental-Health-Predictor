@@ -3,7 +3,8 @@
  * Optimized for English & Somali conversations with Gemini API.
  */
 
-const API_KEY = 'AQ.Ab8RN6LvZoRdjS7W4NOcyunT_hnOoY0VNW5eA2R7s6mM1utkZQ';
+const API_KEY = process.env.REACT_APP_GEMINI_API_KEY || '';
+
 const MODEL_NAME = 'gemini-flash-latest';
 
 const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent`;
