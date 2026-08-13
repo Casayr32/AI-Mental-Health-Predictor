@@ -1,7 +1,8 @@
 import axios from 'axios';
 
 const API = axios.create({
-    baseURL: 'http://localhost:5000/api'
+    //baseURL: 'http://localhost:5000/api'
+    baseURL: 'https://ai-mental-health-predictor-2.onrender.com/api'
 });
 
 // REQUEST INTERCEPTOR
