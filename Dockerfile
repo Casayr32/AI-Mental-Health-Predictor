@@ -1,18 +1,37 @@
-# Isticmaal Python 3.9 si uu u noqdo mid fudud oo casri ah
-FROM python:3.9
+# 1. Isticmaal image rasmi ah oo leh Node.js iyo Python labaduba (ama Ubuntu lagu rakibay labada)
+FROM python:3.9-slim
 
-# Samee folder-ka mashruuca ee server-ka
-WORKDIR /code
+# Rakib Node.js iyo npm mashiinka dhexdiisa
+RUN apt-get update && apt-get install -y curl && \
+    curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
+    apt-get install -y nodejs
 
-# Copy requirements.txt marka hore (si loo dedejiyo dhismaha)
-COPY ./requirements.txt /code/requirements.txt
+# Samee folder-ka shaqada ee server-ka
+WORKDIR /app
 
-# Rakib dhammaan maktabadaha loo baahan yahay
-RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
+# 2. Cop garee requirements.txt (haddii uu ku jiro root ama ai-service) kuna rakib maktabadaha Python
+COPY requirements.txt* ./
+RUN if [ -f requirements.txt ]; then pip install --no-cache-dir -r requirements.txt; fi
 
-# Copy faylasha backend-ka iyo ai-service
-COPY ./backend /code/backend
-COPY ./ai-service /code/ai-service
+# Rakib sidoo kale haddii ai-service uu leeyahay requirements u gaar ah
+COPY ai-service/requirements.txt* ./ai-service/
+RUN if [ -f ai-service/requirements.txt ]; then pip install --no-cache-dir -r ai-service/requirements.txt; fi
 
-# Beddel "backend/app.py" haddii faylkaagu uu magac kale leeyahay (tusaale: main.py)
-CMD ["python", "backend/app.py"]
+# 3. Cop garee package.json ee backend-ka si loo rakibo Node modules
+COPY backend/package*.json ./backend/
+WORKDIR /app/backend
+RUN npm install
+
+# 4. Cop garee dhammaan faylasha mashruuca
+WORKDIR /app
+COPY . .
+
+# 5. U guur folder-ka backend si aad halkaas uga bilowdo server-ka
+WORKDIR /app/backend
+
+# Dekadda (Port) uu Render isticmaalayo
+ENV PORT=10000
+EXPOSE 10000
+
+# Bilow backend-ka Node.js (beddel server.js haddii uu magac kale leeyahay)
+CMD ["node", "server.js"]
