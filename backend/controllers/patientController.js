@@ -29,19 +29,18 @@ exports.submitAssessment = async (req, res) => {
             }
         }
 
-        // const aiResponse = await fetch('http://127.0.0.1:5001/predict', {
-        //     method: 'POST',
-        //     headers: { 'Content-Type': 'application/json' },
-        //     body: JSON.stringify({ q1_symptoms, q2_duration_weeks, q3_previous_diagnosis, q4_therapy_history, q5_medication, q6_mood, q7_stress_level })
-        // });
+        // Halkan waxaa lagu isticmaalayaa Render URL-kaaga cusub iyadoo laga duulayo environment variable ama lagu xirayo si toos ah
+        const aiModelUrl = process.env.AI_MODEL_URL || 'https://ai-mental-health-predictor-2.onrender.com/predict';
 
-        const aiModelUrl = process.env.AI_MODEL_URL || 'http://127.0.0.1:5001/predict';
+        const aiResponse = await fetch(aiModelUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ q1_symptoms, q2_duration_weeks, q3_previous_diagnosis, q4_therapy_history, q5_medication, q6_mood, q7_stress_level })
+        });
 
-const aiResponse = await fetch(aiModelUrl, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ q1_symptoms, q2_duration_weeks, q3_previous_diagnosis, q4_therapy_history, q5_medication, q6_mood, q7_stress_level })
-});
+        if (!aiResponse.ok) {
+            throw new Error(`AI Model connection error: ${aiResponse.statusText}`);
+        }
 
         const aiData = await aiResponse.json();
 
