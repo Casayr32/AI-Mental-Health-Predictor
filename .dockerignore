@@ -1,0 +1,34 @@
+# Dependencies
+node_modules
+__pycache__
+*.pyc
+.venv
+venv
+
+# Build outputs
+frontend/dist
+
+# Git
+.git
+.gitignore
+
+# Environment files
+.env
+.env.*
+.env.local
+
+# IDE
+.vscode
+.idea
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Docs
+*.md
+README.md
+
+# Misc
+*.log
+logs/
