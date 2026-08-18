@@ -45,6 +45,13 @@
 # Services: Frontend (React/Vite), Backend (Node.js/Express), AI Service (Flask)
 # ============================================
 
+# ============================================
+# MindCare AI System - Production Dockerfile
+# ============================================
+# Multi-stage build with optimized layers
+# Services: Frontend (React/Vite), Backend (Node.js/Express), AI Service (Flask)
+# ============================================
+
 # 1. Use Python slim image as base
 FROM python:3.9-slim
 
@@ -120,7 +127,8 @@ RUN npm run build
 # ============================================
 # FINAL STAGE: Production Image
 # ============================================
-FROM python:3.9-slim
+# Use Node.js as base since we need npm for PM2
+FROM node:20-slim
 
 # Install PM2 for process management
 RUN npm install -g pm2
@@ -129,8 +137,12 @@ RUN npm install -g pm2
 WORKDIR /app
 
 # Install Python dependencies for AI service
-COPY ai-service/requirements.txt* ./
-RUN pip install --no-cache-dir -r requirements.txt
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3 \
+    python3-pip \
+    && pip3 install --no-cache-dir -r requirements.txt \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 # Copy AI service from stage
 COPY ai-service/*.py ./
@@ -167,5 +179,3 @@ RUN chmod +x /app/start.sh
 
 # Start all services using start.sh
 CMD ["/app/start.sh"]
-
-
