@@ -52,6 +52,13 @@
 # Services: Frontend (React/Vite), Backend (Node.js/Express), AI Service (Flask)
 # ============================================
 
+# ============================================
+# MindCare AI System - Production Dockerfile
+# ============================================
+# Multi-stage build with optimized layers
+# Services: Frontend (React/Vite), Backend (Node.js/Express), AI Service (Flask)
+# ============================================
+
 # 1. Use Python slim image as base
 FROM python:3.9-slim
 
