@@ -38,41 +38,134 @@
 
 
 
-# 1. Isticmaal Python image rasmi ah oo ah slim
+# ============================================
+# MindCare AI System - Production Dockerfile
+# ============================================
+# Multi-stage build with optimized layers
+# Services: Frontend (React/Vite), Backend (Node.js/Express), AI Service (Flask)
+# ============================================
+
+# 1. Use Python slim image as base
 FROM python:3.9-slim
 
-# Rakib Node.js iyo npm
-RUN apt-get update && apt-get install -y curl && \
-    curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
-    apt-get install -y nodejs && \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
+# Set environment variables
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    DEBIAN_FRONTEND=noninteractive
 
-# Samee folder-ka shaqada
+# 2. Install Node.js and npm
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    gnupg \
+    && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+    && apt-get install -y nodejs \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# 3. Set working directory
 WORKDIR /app
 
-# 2. Cop garee requirements.txt ee Python kuna rakib
-COPY requirements.txt* ./
-RUN if [ -f requirements.txt ]; then pip install --no-cache-dir -r requirements.txt; fi
+# ============================================
+# STAGE 1: AI Service (Flask)
+# ============================================
+FROM python:3.9-slim AS ai-service-stage
 
-# Cop garee ai-service requirements haddii ay jiraan
-COPY ai-service/requirements.txt* ./ai-service/
-RUN if [ -f ai-service/requirements.txt ]; then pip install --no-cache-dir -r ai-service/requirements.txt; fi
+WORKDIR /app/ai-service
 
-# 3. Cop garee package.json ee backend-ka oo rakib Node modules
-COPY backend/package*.json ./backend/
+# Copy requirements and install dependencies
+COPY ai-service/requirements.txt* ./
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy AI service code and model artifacts
+COPY ai-service/*.py ./
+COPY ai-service/model_artifacts ./model_artifacts
+
+# Create logs directory
+RUN mkdir -p /app/logs
+
+# ============================================
+# STAGE 2: Backend (Node.js)
+# ============================================
+FROM node:20-slim AS backend-stage
+
 WORKDIR /app/backend
-RUN npm npm install || npm install
 
-# 4. Ku laabo root-ka oo soo guuri dhammaan faylasha mashruuca
+# Copy package files and install dependencies
+COPY backend/package*.json ./
+RUN npm ci --only=production
+
+# Copy backend code
+COPY backend/ ./
+
+# Create logs directory
+RUN mkdir -p /app/logs
+
+# ============================================
+# STAGE 3: Frontend (React/Vite)
+# ============================================
+FROM node:20-slim AS frontend-stage
+
+WORKDIR /app/frontend
+
+# Copy package files and install dependencies
+COPY frontend/package*.json ./
+RUN npm ci --only=production
+
+# Copy frontend source code
+COPY frontend/ ./
+
+# Build frontend for production
+RUN npm run build
+
+# ============================================
+# FINAL STAGE: Production Image
+# ============================================
+FROM python:3.9-slim
+
+# Install PM2 for process management
+RUN npm install -g pm2
+
+# Set working directory
 WORKDIR /app
-COPY . .
 
-# 5. Ka dhig start.sh mid la fulin karo (executable)
-RUN chmod +x start.sh
+# Install Python dependencies for AI service
+COPY ai-service/requirements.txt* ./
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Render wuxuu isticmaalaa PORT (tusaale 10000)
-ENV PORT=10000
-EXPOSE 10000
+# Copy AI service from stage
+COPY ai-service/*.py ./
+COPY ai-service/model_artifacts ./model_artifacts
 
-# 6. Ku bilow labada server shaqada adigoo adeegsanaya start.sh
-CMD ["./start.sh"]
+# Copy backend from stage
+COPY backend/ ./
+
+# Copy built frontend from stage
+COPY --from=frontend-stage /app/frontend/dist ./frontend/dist
+
+# Create necessary directories
+RUN mkdir -p /app/logs && chmod +x /app/start.sh
+
+# Expose ports for all services
+# Frontend: 3000
+# Backend: 5000
+# AI Service: 5001
+EXPOSE 3000 5000 5001
+
+# Health check endpoint
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD curl -f http://localhost:5001/predict || exit 1
+
+# Set environment variables
+ENV PORT=3000 \
+    NODE_ENV=production \
+    PORT_BACKEND=5000 \
+    PORT_AI=5001
+
+# Copy start script
+COPY start.sh /app/start.sh
+RUN chmod +x /app/start.sh
+
+# Start all services using start.sh
+CMD ["/app/start.sh"]
+
+
