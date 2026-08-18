@@ -1,0 +1,35 @@
+# Create requirements.txt
+cat > ai-service/requirements.txt << 'EOF'
+flask==2.3.3
+flask-cors==4.0.0
+scikit-learn==1.3.0
+numpy==1.24.3
+pandas==2.0.3
+joblib==1.3.1
+gunicorn==21.2.0
+EOF
+
+# Create .dockerignore
+cat > .dockerignore << 'EOF'
+node_modules
+__pycache__
+*.pyc
+.venv
+venv
+frontend/dist
+.git
+.gitignore
+.env
+.env.*
+.vscode
+.idea
+.DS_Store
+*.md
+*.log
+logs/
+EOF
+
+# Add and commit
+git add ai-service/requirements.txt .dockerignore Dockerfile start.sh
+git commit -m "Fix Docker build: add requirements.txt and .dockerignore"
+git push
