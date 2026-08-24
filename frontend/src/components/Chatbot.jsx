@@ -32,7 +32,7 @@ export default function Chatbot({ onClose, patientName }) {
     // Handle message sending
     const handleSendMessage = async (e) => {
         e.preventDefault();
-        e.stopPropagation();
+        e.stopPropagation(); // Stop event propagation
 
         if (!input.trim() || isLoading) return;
 
@@ -45,7 +45,14 @@ export default function Chatbot({ onClose, patientName }) {
         setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
 
         try {
-            // Send to AI (Service handles emergencies automatically inside sendMessage)
+            // Check for emergency
+            if (chatbotService.isEmergencyRequest(userMessage)) {
+                const emergencyResponse = chatbotService.getEmergencyResponse();
+                setMessages(prev => [...prev, { role: 'assistant', content: emergencyResponse }]);
+                return;
+            }
+
+            // Send to AI
             const response = await chatbotService.sendMessage(userMessage);
 
             if (response.success) {
@@ -66,7 +73,7 @@ export default function Chatbot({ onClose, patientName }) {
 
     // Handle Enter key (send with Shift+Enter for new line)
     const handleKeyDown = (e) => {
-        e.stopPropagation();
+        e.stopPropagation(); // Prevent modal key listeners from catching this
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
             handleSendMessage(e);
@@ -84,6 +91,7 @@ export default function Chatbot({ onClose, patientName }) {
         }
     };
 
+    // Prevent modal click propagation when clicking anywhere inside chatbot
     const handleContainerClick = (e) => {
         e.stopPropagation();
     };
@@ -159,7 +167,7 @@ export default function Chatbot({ onClose, patientName }) {
                 ))}
 
                 {/* Emergency Alert */}
-                {messages.some(msg => msg.content.includes('⚠️')) && (
+                {messages.some(msg => msg.content.includes('⚠️ IF YOU OR SOMEONE ELSE')) && (
                     <div className="emergency-alert">
                         <i className="ti ti-alert-circle"></i>
                         <span>Emergency resources are always available</span>
