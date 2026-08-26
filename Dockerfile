@@ -35,4 +35,4 @@ EXPOSE 5000 5001
 ENV PORT=5000
 
 # Start both Flask and Node directly
-CMD ["bash", "-c", "pm2 start /app/ai-service/app.py --name ai-service --interpreter python3 && pm2 start /app/backend/server.js --name backend && pm2 logs"]
+CMD ["bash", "-c", "pm2 start /app/backend/server.js --name backend && pm2 start /app/ai-service/app.py --name ai-service --interpreter python3 && pm2 logs"]
