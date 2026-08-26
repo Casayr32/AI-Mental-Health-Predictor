@@ -4,7 +4,6 @@ const dotenv = require('dotenv');
 const connectDB = require('./config/db');
 const reportRoutes = require('./routes/reportRoutes');
 
-
 // Load environment variables
 dotenv.config();
 
@@ -13,28 +12,25 @@ const app = express();
 
 // Middlewares
 app.use(express.json());
-app.use(cors());
+
+// SAX: CORS configuration buuxa oo fasaxaya dhammaan domain-yada iyo headers-ka
+app.use(cors({
+    origin: '*',
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
 
 // Connect to MongoDB Atlas
 connectDB();
 
 // --- API ROUTES ---
-// Auth Routes (Login, Register)
 app.use('/api/auth', require('./routes/authRoutes'));
-
 app.use('/api/reports', reportRoutes);
-
-
-// Admin Routes (Dashboard, Manage Users)
 app.use('/api/admin', require('./routes/adminRoutes'));
-
-// Patient Routes (Appointments, Medical History, Assessments)
 app.use('/api/patient', require('./routes/patientRoutes'));
-
-// Doctor Routes (Schedule, Patient Consultations, Prescriptions)
 app.use('/api/doctor', require('./routes/doctorRoutes'));
 
-// Simple test route to verify backend status
+// Simple test route
 app.get('/api/test', (req, res) => {
     res.json({ message: "MindCare AI Backend is running successfully!" });
 });
