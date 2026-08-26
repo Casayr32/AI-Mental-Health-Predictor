@@ -7,26 +7,12 @@ const reportRoutes = require('./routes/reportRoutes');
 dotenv.config();
 const app = express();
 
-// --- CORS CONFIGURATION ---
-const allowedOrigins = [
-    'https://ai-mental-health-predictor-hazel.vercel.app',
-    'http://localhost:5173'
-];
-
-app.use(cors({
-    origin: function (origin, callback) {
-        if (!origin || allowedOrigins.includes(origin) || origin.endsWith('.vercel.app')) {
-            callback(null, true);
-        } else {
-            callback(null, true); 
-        }
-    },
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept']
-}));
+// BULLETPROOF CORS: Automatically allows any origin (Vercel, localhost, etc.)
+app.use(cors({ origin: true, credentials: true }));
 
 app.use(express.json());
+
+// Connect to MongoDB Atlas
 connectDB();
 
 // --- API ROUTES ---
