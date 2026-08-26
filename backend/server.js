@@ -41,7 +41,11 @@ app.get('/api/test', (req, res) => {
     res.json({ message: "MindCare AI Backend is running successfully!" });
 });
 
-const PORT = process.env.PORT || 5000;
+// const PORT = process.env.PORT || 5000;
+// app.listen(PORT, () => {
+//     console.log(`Node.js Backend running on port ${PORT}`);
+// });
+const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => {
     console.log(`Node.js Backend running on port ${PORT}`);
 });
