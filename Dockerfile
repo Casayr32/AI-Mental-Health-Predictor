@@ -22,15 +22,11 @@ RUN cd backend && npm ci --omit=dev
 # Copy all actual code
 COPY ai-service/ ./ai-service/
 COPY backend/ ./backend/
-COPY start.sh ./
-RUN sed -i 's/\r$//' start.sh
-RUN chmod +x start.sh
-
-RUN chmod +x start.sh
 
 # Expose ONLY the backend ports
 EXPOSE 5000 5001
 
 ENV PORT=5000
 
-CMD ["./start.sh"]
+# Start both Flask and Node directly, no shell script needed!
+CMD ["bash", "-c", "pm2 start /app/ai-service/app.py --name ai-service --interpreter python3 && pm2 start /app/backend/server.js --name backend && pm2 logs"]
