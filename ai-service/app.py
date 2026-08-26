@@ -1,14 +1,15 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 import pandas as pd
 import joblib
 import numpy as np
 
 app = Flask(__name__)
+CORS(app) # <--- THIS IS REQUIRED FOR VERCEL/REACT TO TALK TO IT
 
 # 1. Load dataset for 100% Exact Matching
 print("Loading dataset for exact lookup...")
 df_dataset = pd.read_csv('dataset.csv')
-# Ka dhig Previous Diagnosis 'None' haddii uu NaN yahay
 df_dataset['Previous Diagnosis'] = df_dataset['Previous Diagnosis'].fillna('None')
 
 print("Loading AI model and encoders...")
@@ -32,8 +33,22 @@ def bulletproof_transform(encoder, val):
     first_valid_idx = 0
     return encoder.transform([raw_classes[first_valid_idx]])[0]
 
-@app.route('/predict', methods=['POST'])
+# REQUIRED LOGIN ROUTE FOR YOUR REACT APP
+@app.route('/api/auth/login', methods=['POST', 'OPTIONS'])
+def auth_login():
+    if request.method == 'OPTIONS':
+        return '', 204
+    data = request.json
+    email = data.get('email')
+    password = data.get('password')
+    if email and password:
+        return jsonify({"success": True, "token": "fake-jwt-token-12345", "role": "admin"})
+    return jsonify({"success": False, "message": "Missing credentials"}), 400
+
+@app.route('/predict', methods=['POST', 'OPTIONS'])
 def predict():
+    if request.method == 'OPTIONS':
+        return '', 204
     try:
         data = request.json
         print("--- INCOMING DATA ---", data) 
@@ -46,13 +61,10 @@ def predict():
         r6 = int(data.get('q6_mood'))
         r7 = int(data.get('q7_stress_level'))
 
-        # Validation
         if not r1: return jsonify({"error": "Missing q1_symptoms"}), 400
         if not r3: return jsonify({"error": "Missing q3_previous_diagnosis"}), 400
 
-        # =========================================================
-        # 🌟 STEP 1: CHECK FOR 100% EXACT MATCH IN DATASET.CSV
-        # =========================================================
+        # STEP 1: EXACT MATCH
         exact_match = df_dataset[
             (df_dataset['Symptoms'].str.strip().str.lower() == str(r1).strip().lower()) &
             (df_dataset['Duration (weeks)'] == r2) &
@@ -74,9 +86,7 @@ def predict():
                 "confidence_score": 1.0
             })
 
-        # =========================================================
-        # 🤖 STEP 2: FALLBACK TO ML MODEL PREDICTION IF NOT IN DATASET
-        # =========================================================
+        # STEP 2: ML MODEL
         print("🤖 No exact match. Fallback to AI Model Prediction...")
         x1 = bulletproof_transform(le_symptoms, r1)
         x2 = float(r2) / 51.0
@@ -87,7 +97,6 @@ def predict():
         x7 = r7
 
         X_input = np.array([[x1, x2, x3, x4, x5, x6, x7]])
-
         predictions = model.predict(X_input)
         probabilities = model.estimators_[0].predict_proba(X_input)[0]
         confidence = round(float(np.max(probabilities)), 2)
@@ -105,4 +114,4 @@ def predict():
         return jsonify({"error": str(e)}), 400
 
 if __name__ == '__main__':
-    app.run(port=5001, debug=False)
+    app.run(host='0.0.0.0', port=5001, debug=False)
