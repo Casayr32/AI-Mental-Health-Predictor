@@ -2,7 +2,8 @@ import axios from 'axios';
 
 const API = axios.create({
     //baseURL: 'http://localhost:5000/api'
-    baseURL: 'https://ai-mental-health-predictor-2.onrender.com/api'
+    // baseURL: 'https://ai-mental-health-predictor-2.onrender.com/api'
+     baseURL: 'ai-mental-health-predictor-production-41f0.up.railway.app'
 });
 
 // REQUEST INTERCEPTOR
