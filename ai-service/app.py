@@ -3,9 +3,16 @@ from flask_cors import CORS
 import pandas as pd
 import joblib
 import numpy as np
+import os
 
 app = Flask(__name__)
-CORS(app) # <--- THIS IS REQUIRED FOR VERCEL/REACT TO TALK TO IT
+CORS(app)
+
+# ==========================================
+# CRITICAL FIX: Force Python to look in its own folder
+# ==========================================
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+os.chdir(BASE_DIR) 
 
 # 1. Load dataset for 100% Exact Matching
 print("Loading dataset for exact lookup...")
@@ -33,7 +40,6 @@ def bulletproof_transform(encoder, val):
     first_valid_idx = 0
     return encoder.transform([raw_classes[first_valid_idx]])[0]
 
-# REQUIRED LOGIN ROUTE FOR YOUR REACT APP
 @app.route('/api/auth/login', methods=['POST', 'OPTIONS'])
 def auth_login():
     if request.method == 'OPTIONS':
@@ -64,7 +70,6 @@ def predict():
         if not r1: return jsonify({"error": "Missing q1_symptoms"}), 400
         if not r3: return jsonify({"error": "Missing q3_previous_diagnosis"}), 400
 
-        # STEP 1: EXACT MATCH
         exact_match = df_dataset[
             (df_dataset['Symptoms'].str.strip().str.lower() == str(r1).strip().lower()) &
             (df_dataset['Duration (weeks)'] == r2) &
@@ -86,7 +91,6 @@ def predict():
                 "confidence_score": 1.0
             })
 
-        # STEP 2: ML MODEL
         print("🤖 No exact match. Fallback to AI Model Prediction...")
         x1 = bulletproof_transform(le_symptoms, r1)
         x2 = float(r2) / 51.0
