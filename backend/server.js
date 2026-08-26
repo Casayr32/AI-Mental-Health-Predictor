@@ -1,5 +1,4 @@
 const express = require('express');
-const cors = require('cors');
 const dotenv = require('dotenv');
 const connectDB = require('./config/db');
 const reportRoutes = require('./routes/reportRoutes');
@@ -7,8 +6,24 @@ const reportRoutes = require('./routes/reportRoutes');
 dotenv.config();
 const app = express();
 
-// BULLETPROOF CORS: Automatically allows any origin (Vercel, localhost, etc.)
-app.use(cors({ origin: true, credentials: true }));
+// ==========================================
+// NUCLEAR CORS FIX: Manually intercept OPTIONS
+// ==========================================
+app.use((req, res, next) => {
+    // Allow your Vercel frontend (and anything else for now)
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept');
+    res.header('Access-Control-Allow-Credentials', 'true');
+
+    // If the browser sends an OPTIONS preflight check, reply with 200 OK immediately and stop.
+    if (req.method === 'OPTIONS') {
+        return res.status(200).end();
+    }
+
+    // If it's a normal GET/POST/PUT/DELETE, continue to the routes
+    next();
+});
 
 app.use(express.json());
 
