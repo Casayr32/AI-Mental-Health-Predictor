@@ -3,7 +3,7 @@ import axios from 'axios';
 const API = axios.create({
     // SAX: Waxaa lagu daray https:// iyo /api ee dhamaadka
     // baseURL: 'https://ai-mental-health-predictor-production-41f0.up.railway.app/api'
-    baseURL: 'ai-mental-health-predictor-production-30a6.up.railway.app/api'
+    baseURL: 'https://ai-mental-health-predictor-production-30a6.up.railway.app/api'
 });
 
 // REQUEST INTERCEPTOR
