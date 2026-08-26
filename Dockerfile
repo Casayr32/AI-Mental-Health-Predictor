@@ -23,6 +23,8 @@ RUN cd backend && npm ci --omit=dev
 COPY ai-service/ ./ai-service/
 COPY backend/ ./backend/
 COPY start.sh ./
+RUN sed -i 's/\r$//' start.sh
+RUN chmod +x start.sh
 
 RUN chmod +x start.sh
 
