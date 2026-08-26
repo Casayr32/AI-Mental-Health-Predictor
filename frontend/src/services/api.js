@@ -1,9 +1,8 @@
 import axios from 'axios';
 
 const API = axios.create({
-    //baseURL: 'http://localhost:5000/api'
-    // baseURL: 'https://ai-mental-health-predictor-2.onrender.com/api'
-     baseURL: 'ai-mental-health-predictor-production-41f0.up.railway.app'
+    // SAX: Waxaa lagu daray https:// iyo /api ee dhamaadka
+    baseURL: 'https://ai-mental-health-predictor-production-41f0.up.railway.app/api'
 });
 
 // REQUEST INTERCEPTOR
@@ -35,8 +34,6 @@ API.interceptors.response.use(
             localStorage.removeItem('user');
             localStorage.removeItem('token');
 
-            // CRITICAL: Use event dispatch, NOT window.location.href
-            // window.location.href causes blank white page crash!
             if (window.location.pathname !== '/login') {
                 window.dispatchEvent(new Event('logout'));
             }
