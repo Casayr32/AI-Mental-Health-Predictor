@@ -10,15 +10,30 @@ dotenv.config();
 // Initialize Express app
 const app = express();
 
+// --- CORS CONFIGURATION (VERCEL & RAILWAY FIX) ---
+const allowedOrigins = [
+    'https://ai-mental-health-predictor-hazel.vercel.app',
+    'https://ai-mental-health-predictor-production-41f0.up.railway.app',
+    'http://localhost:5173',
+    'http://localhost:3000'
+];
+
+app.use(cors({
+    origin: function (origin, callback) {
+        // Ogolow requests-ka ka imaanaya origins-ka la fasaxay ama kuwa aan origin lahayn (sida Postman)
+        if (!origin || allowedOrigins.includes(origin) || origin.endsWith('.vercel.app')) {
+            callback(null, true);
+        } else {
+            callback(null, true);
+        }
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept']
+}));
+
 // Middlewares
 app.use(express.json());
-
-// SAX: CORS configuration buuxa oo fasaxaya dhammaan domain-yada iyo headers-ka
-app.use(cors({
-    origin: '*',
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization']
-}));
 
 // Connect to MongoDB Atlas
 connectDB();
