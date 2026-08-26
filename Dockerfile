@@ -1,3 +1,4 @@
+ARG CACHEBUST=1
 FROM python:3.9-slim
 
 # Install Node.js 20 directly into the Python environment
