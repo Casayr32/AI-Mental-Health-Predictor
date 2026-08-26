@@ -20,11 +20,11 @@ const allowedOrigins = [
 
 app.use(cors({
     origin: function (origin, callback) {
-        // Ogolow requests-ka ka imaanaya origins-ka la fasaxay ama kuwa aan origin lahayn (sida Postman)
+        // Allow requests from allowed origins, or requests with no origin (like Postman/server-to-server)
         if (!origin || allowedOrigins.includes(origin) || origin.endsWith('.vercel.app')) {
             callback(null, true);
         } else {
-            callback(null, true);
+            callback(null, true); // Fallback to allow all during development
         }
     },
     credentials: true,
@@ -58,5 +58,5 @@ app.get('/', (req, res) => {
 // Start Server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+    console.log(`Node.js Backend running on port ${PORT}`);
 });
