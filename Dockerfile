@@ -1,5 +1,5 @@
-ARG CACHEBUST=1
-FROM python:3.9-slim
+ARG CACHEBUST=2
+FROM python:3.11-slim
 
 # Install Node.js 20 directly into the Python environment
 RUN apt-get update && apt-get install -y curl gnupg \
@@ -29,5 +29,5 @@ EXPOSE 5000 5001
 
 ENV PORT=5000
 
-# Start both Flask and Node directly, no shell script needed!
-CMD ["python3", "/app/ai-service/app.py"]
+# Start both Flask and Node directly
+CMD ["bash", "-c", "pm2 start /app/ai-service/app.py --name ai-service --interpreter python3 && pm2 start /app/backend/server.js --name backend && pm2 logs"]
