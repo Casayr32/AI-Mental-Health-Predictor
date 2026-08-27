@@ -56,23 +56,39 @@ const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const connectDB = require('./config/db');
+const reportRoutes = require('./routes/reportRoutes');
 
 dotenv.config();
 const app = express();
 
-// Simple, unbreakable CORS
-app.use(cors({ origin: true }));
+// ==========================================
+// ROBUST CORS CONFIGURATION
+// ==========================================
+app.use(cors({
+    origin: '*', // Ama waxaad geli kartaa domain-kaaga Vercel haddii aad rabto
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
+    credentials: true
+}));
+
 app.use(express.json());
 
-// Connect to DB
+// Connect to MongoDB Atlas
 connectDB();
+
+// --- API ROUTES (Halkan ayay ka maqnaayeen koodkaagii dambe) ---
+app.use('/api/auth', require('./routes/authRoutes'));
+app.use('/api/reports', reportRoutes);
+app.use('/api/admin', require('./routes/adminRoutes'));
+app.use('/api/patient', require('./routes/patientRoutes'));
+app.use('/api/doctor', require('./routes/doctorRoutes'));
 
 // Diagnostic route
 app.get('/api/test', (req, res) => {
-    res.json({ message: "Node.js is successfully holding port 5001!" });
+    res.json({ message: "MindCare AI Backend is running successfully!" });
 });
 
 const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => {
-    console.log(`Node.js is alive and running on port ${PORT}`);
+    console.log(`Node.js Backend running on port ${PORT}`);
 });
