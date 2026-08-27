@@ -35,7 +35,8 @@ exports.submitAssessment = async (req, res) => {
         // const aiModelUrl = process.env.AI_SERVICE_URL || 'https://ai-mental-health-predictor-production-c0d3.up.railway.app/predict';
         //const aiModelUrl = process.env.AI_SERVICE_URL || 'http://127.0.0.1:5001';
         //const aiModelUrl = 'http://127.0.0.1:5001/predict';
-        const aiModelUrl = 'https://ai-mental-health-predictor-production-6fe5.up.railway.app/predict';
+        //const aiModelUrl = 'https://ai-mental-health-predictor-production-6fe5.up.railway.app/predict';
+        const aiModelUrl = process.env.AI_SERVICE_URL || 'http://localhost:5001/predict';
 
 
         const aiResponse = await fetch(aiModelUrl, {
