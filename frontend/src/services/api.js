@@ -2,7 +2,7 @@ import axios from 'axios';
 
 const API = axios.create({
     // Badel oo gali URL-ka cusub ee saxda ah
-    baseURL: 'https://ai-mental-health-predictor-production-c0d3.up.railway.app/api'
+  baseURL: 'https://ai-mental-health-predictor-production-6fe5.up.railway.app/api'
 });
 
 // REQUEST INTERCEPTOR
