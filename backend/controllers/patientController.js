@@ -31,7 +31,8 @@ exports.submitAssessment = async (req, res) => {
 
         // Halkan waxaa lagu isticmaalayaa Render URL-kaaga cusub iyadoo laga duulayo environment variable ama lagu xirayo si toos ah
         // const aiModelUrl = process.env.AI_MODEL_URL || 'https://ai-mental-health-predictor-2.onrender.com/predict';
-        const aiModelUrl = process.env.AI_SERVICE_URL || 'https://ai-mental-health-predictor-production-c0d3.up.railway.app/predict';
+        // const aiModelUrl = process.env.AI_SERVICE_URL || 'https://ai-mental-health-predictor-production-c0d3.up.railway.app/predict';
+        const aiModelUrl = process.env.AI_SERVICE_URL || 'http://127.0.0.1:5001';
 
 
         const aiResponse = await fetch(aiModelUrl, {
