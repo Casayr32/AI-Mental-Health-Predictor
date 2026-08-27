@@ -1,8 +1,8 @@
 import axios from 'axios';
 
 const API = axios.create({
-    // SAX: Waxaa lagu daray https:// iyo /api ee dhamaadka
-    baseURL: 'https://ai-mental-health-predictor-production-46e0.up.railway.app/api'
+    // Badel oo gali URL-ka cusub ee saxda ah
+    baseURL: 'https://ai-mental-health-predictor-production-c0d3.up.railway.app/api'
 });
 
 // REQUEST INTERCEPTOR
