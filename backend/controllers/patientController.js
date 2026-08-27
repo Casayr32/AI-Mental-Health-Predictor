@@ -1,3 +1,4 @@
+const axios = require('axios');
 const crypto = require('crypto');
 const Assessment = require('../models/Assessment');
 const Feedback = require('../models/Feedback');
@@ -10,7 +11,6 @@ const algorithm = 'aes-256-cbc';
 const jwtSecret = process.env.JWT_SECRET || 'default_fallback_jwt_secret_key_32bytes';
 const key = jwtSecret.padEnd(32, '0').slice(0, 32);
 
-// @desc    Submit new assessment
 exports.submitAssessment = async (req, res) => {
     try {
         const patientId = req.user._id;
@@ -29,24 +29,20 @@ exports.submitAssessment = async (req, res) => {
             }
         }
 
-        // Halkan waxaa lagu isticmaalayaa Render URL-kaaga cusub iyadoo laga duulayo environment variable ama lagu xirayo si toos ah
-        // const aiModelUrl = process.env.AI_MODEL_URL || 'https://ai-mental-health-predictor-2.onrender.com/predict';
-        // const aiModelUrl = process.env.AI_SERVICE_URL || 'https://ai-mental-health-predictor-production-c0d3.up.railway.app/predict';
-        //const aiModelUrl = process.env.AI_SERVICE_URL || 'http://127.0.0.1:5001';
+        // THIS IS THE CRITICAL FIX
         const aiModelUrl = 'http://127.0.0.1:5001/predict';
 
-
-        const aiResponse = await fetch(aiModelUrl, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ q1_symptoms, q2_duration_weeks, q3_previous_diagnosis, q4_therapy_history, q5_medication, q6_mood, q7_stress_level })
+        const aiResponse = await axios.post(aiModelUrl, {
+            q1_symptoms,
+            q2_duration_weeks,
+            q3_previous_diagnosis,
+            q4_therapy_history,
+            q5_medication,
+            q6_mood,
+            q7_stress_level
         });
 
-        if (!aiResponse.ok) {
-            throw new Error(`AI Model connection error: ${aiResponse.statusText}`);
-        }
-
-        const aiData = await aiResponse.json();
+        const aiData = aiResponse.data;
 
         if (aiData.error) {
             return res.status(500).json({ message: 'AI Processing Error', error: aiData.error });
