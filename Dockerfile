@@ -23,7 +23,7 @@ COPY backend/ ./backend/
 # ==========================================
 # ADD THIS LINE TO RETRAIN THE MODEL!
 # ==========================================
-RUN cd /app/ai-service && python train_model.py
+# RUN cd /app/ai-service && python train_model.py
 
 # Install Node (Backend) dependencies
 COPY backend/package*.json ./backend/
