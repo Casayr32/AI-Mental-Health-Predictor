@@ -152,3 +152,35 @@ def predict():
 
 # if __name__ == '__main__':
 #     app.run(host='0.0.0.0', port=5001, debug=False)
+
+@app.route('/api/<path:path>', methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'])
+def proxy_to_node(path):
+    target_url = f"http://localhost:5000/api/{path}"
+    
+    # 1. Handle CORS Preflight
+    if request.method == 'OPTIONS':
+        response = Response(status=200)
+        response.headers['Access-Control-Allow-Origin'] = '*'
+        response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS'
+        response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
+        return response
+
+    # 2. Forward request to Node.js on port 5000
+    resp = req_lib.request(
+        request.method,
+        target_url,
+        headers={key: value for (key, value) in request.headers if key != 'Host'},
+        data=request.get_data(),
+        allow_redirects=False
+    )
+
+    # 3. Return Node's response with CORS attached
+    excluded_headers = ['content-encoding', 'content-length', 'transfer-encoding', 'connection']
+    headers = [(name, value) for (name, value) in resp.raw.headers.items() if name.lower() not in excluded_headers]
+    headers.append(('Access-Control-Allow-Origin', '*'))
+    headers.append(('Access-Control-Allow-Credentials', 'true'))
+
+    return Response(resp.content, resp.status_code, headers)
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5001, debug=False)
